@@ -1,4 +1,4 @@
-grammar nano;
+grammar Nano;
 
 
 
@@ -11,7 +11,7 @@ stat	:	ID '=' BOOLEAN ';' NEWLINE
 
 NEWLINE	:	'\r'? '\n';
 
-expr	:	multExpr(('+'|'-') multExpr)*;
+expr	:	multExpr(('+'|'-') multExpr)* {System.out.println("got +-");};
 
 multExpr:	atom('*' atom)*;
 
