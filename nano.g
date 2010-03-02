@@ -42,3 +42,87 @@ WS  :   ( ' '
 STRING
     :  '"' (~('\\'|'"') )* '"'
     ;
+
+COMMA 
+	:','
+	; 
+   
+ SEMICOLON
+	:
+	';'
+	;
+
+COLON
+	:
+	':'
+	;
+   	
+LPAREN
+	:
+	'('
+	;
+	
+RPAREN
+	:
+	')'
+	;
+	
+PLUS
+	:
+	'+'
+	;
+	
+MINUS
+	:
+	'-'
+	;	
+	
+MULTIPLY
+	:
+	'*'
+	;
+
+DIVIDE
+	:
+	'/'
+	;
+
+LSQUAREBRACKET
+	:
+	'['
+	;
+	
+RSQUAREBRACKET
+	:
+	']'
+	;
+	
+ASSIGN
+	:
+	':='
+	;
+
+COMPARISON
+	:'='
+	;
+
+NOTEQUALS
+	:'<>'
+	;
+	
+LESSTHAN
+	:'<'
+	;
+	
+LESSTHANEQUAL
+	:'<='
+	;
+	
+GREATERTHAN
+	:'>'
+	;
+				
+
+GREATERTHANEQUAL
+	:'>='
+	;
