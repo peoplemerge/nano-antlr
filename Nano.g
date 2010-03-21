@@ -1,183 +1,167 @@
-grammar Nanob;
+grammar Nano;
+
+options{
+	 backtrack=true;
+}
 
 prog:	stat+;
 
-	stat: 
 	
-	{CONST_DECL}* | {VAR_DECL}* | {PROC_DECL}* | BEGIN STATEMENT {STATEMENT}* END SEMICOLON;
+stat:  
+	(const_decl)*  (var_decl)*  (proc_decl)*  'begin' statement (statement)* 'end' SEMICOLON;
 	
-STATEMENT
-	:  BLOCK | PRINT | READ | ASSIGN | CONDITIONAL | FOR | RETURN | CALL;
-	
-BLOCK
-	:	BEGIN {CONST_DECL}*  {VAR_DECL}* {STATEMENT}* END;
-	
-CONST_DECL
-	: 'const' ID {COMMA ID}* = 'int_const';
-	
-VAR_DECL
-	: 'var' ID {COMMA ID}* SEMICOLON SCALAR_TYPE
-	| 'var' ID {INT}? {COMMA ID {INT}?}}* SCALAR_TYPE;
-	
-PROC_DECL
-	: PROCEDURE ID LPAREN {FORMAL {SEMICOLON FORMAL}*}? RPAREN SEMICOLON BLOCK;
-	
-SCALAR_TYPE
-	: INTEGER | BOOLEAN;
+statement:
+	block | print | read | asgn | cond /*| for*/ | 'return' | call;
 
+block:
+	'begin' (const_decl)* (var_decl)* (statement)* 'end' SEMICOLON;
 	
-CONDITIONAL
-	:	'if' LPAREN BOOL_EXPR RPAREN 'then' STATEMENT {else <STATEMENT}?;
+const_decl:
+	 'const' ID (COMMA ID)* ASSIGN INT_CONST SEMICOLON;
 	
-PRINT
-	: 'print' LPAREN STRING RPAREN SEMICOLON | 'print' LPAREN STRING RPAREN SEMICOLON;
-	
-READ
-	: 'read' LPAREN STRING {COMMA INPUT_TARGET}* RPAREN SEMICOLON;
-	
-INPUT_TARGET
-	:	ID | ID {INT_EXPR}? SEMICOLON;
+var_decl:
+	 'var' ID (COMMA ID)* COLON scalar_type SEMICOLON
+	|  'var' ID LSQBRACKET INT_CONST RSQBRACKET  ( COMMA ID LSQBRACKET INT_CONST RSQBRACKET )* COLON scalar_type ;
 
-ASGN
-	:	ID ASSIGN EXPR | ID {INT_EXPR}* ASSIGN EXPR;
-	
-EXPR
-	: INT_EXPR | BOOL_EXPR;
-	
-COND
-	:	'if' LPAREN BOOL_EXPR RPAREN 'then' STATEMENT {'else' STATEMENT}*;
+proc_decl:
+	 'procedure' ID LPAREN (formal (SEMICOLON formal)*)? RPAREN SEMICOLON block;
 
-FOR
-	:	'for' ID ASSIGN INT_EXPR 'to' INT_EXPR 'do' STATEMENT;
+formal:
+	ID ( COMMA ID )* | scalar_type;
+		
+print:
+	'print' LPAREN STRING (COMMA expr)* RPAREN SEMICOLON;
 	
+read:
+	'read' LPAREN STRING (COMMA input_target)* RPAREN SEMICOLON;
 	
-BOOLEAN_PRIMITIVE
-	: BOOLEAN_PRIMITIVE 'or' BOOL_TERM | BOOL_TERM	;
+input_target:
+	ID | ID LSQBRACKET expr RSQBRACKET;
 
-BOOL_EXPR
-  :	 'not' BOOLEAN_PRIMITIVE;
+//for:
+	//'for' ID ASSIGN expr 'to' expr 'do' statement; 
+	
+cond:
+	'if' LPAREN bool_expr RPAREN 'then' statement LSQBRACKET 'else' statement RSQBRACKET; 
+	
+		
+asgn:
+	ID ASSIGN expr | ID (int_expr)* ASSIGN expr SEMICOLON;
+
+call:
+	'call' ID LPAREN (expr (COMMA expr)*)? RPAREN SEMICOLON;
+	
+expr:
+	int_expr | bool_expr;	
+	
+boolean_primitive:
+	(bool_term) ('or' bool_term)*	;
+
+bool_expr:
+	 'not' boolean_primitive;
   
-BOOL_TERM
-	: BOOL_TERM 'and' BOOL_FACTOR | BOOL_FACTOR;
+bool_term:
+	(bool_factor) ('and' bool_factor)*;
 	
-BOOL_FACTOR
-	: BOOL_CONST | VALUE | INT_EXPR RELOP INT_EXPR | LPAREN BOOL_EXPR RPAREN;
+bool_factor:
+	('true' | 'false') | value * | int_expr relop int_expr | LPAREN bool_expr RPAREN;
+
+value:
+	ID (int_expr)*;
+		
+int_expr:
+	int_prim;
 	
-CALL
-	:	'call' ID LPAREN {EXPR {COMMA EXPR}*}? RPAREN;
-
-INT_EXPR
-	: INT_PRIM;
+int_prim:
+	 (int_term) (PLUS int_term | MINUS int_term)*;
 	
-INT_PRIM
-	: INT_PRIM PLUS INT_TERM |  INT_PRIM MINUS INT_TERM | INT_TERM;
+int_term:
+	 (int_factor) (MULTIPLY int_factor | DIVIDE int_factor)*;
 	
-INT_TERM
-	:  INT_TERM MULTIPLY INT_FACTOR | INT_TERM DIVIDE INT_FACTOR  | INT_FACTOR;
+int_factor:
+	 INT_CONST| value | LPAREN int_expr RPAREN;
+
+ID  :
+	('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
 	
-INT_FACTOR
-	: 'int_const'| VALUE | LPAREN INT_EXPR RPAREN;  
+relop:
+	COMPARISON | LESSTHAN | GREATERTHAN | LESSTHANEQUAL | GREATERTHANEQUAL | NOTEQUALS;
+	
+scalar_type:
+	'integer' | 'boolean';
 
 
-NEWLINE	:	'\r'? '\n';
-
-
-BOOLEAN_CONST :	
-	('true' | 'false');
-
-ID  :	('a'..'z'|'A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
-    ;
-
-INT :	'0'..'9'+
-    ;
-
+//Tokens
 COMMENT
     :   '//' ~('\n'|'\r')* '\r'? '\n' {$channel=HIDDEN;}
-    |   '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;}
-    ;
+    |   '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;};
 
-WS  :   ( ' '
-        | '\t'
-        | '\r'
-        | '\n'
-        ) {$channel=HIDDEN;}
-    ;
+WS :
+	 ( ' '| '\t' | '\r' | '\n' ) {$channel=HIDDEN;};
 
-STRING
-    :  '"' (~('\\'|'"') )* '"'
-    ;
+    
+NEWLINE	:
+	'\r'? '\n';
 
-//Keywords
 
-BEGIN
-	:	'begin';
+INT_CONST:
+	'0'..'9'+;
+
+STRING:
+	'"' (~('\\'|'"') )* '"';
 	
-END
-	: 'end';
+//Reserved symbols
 
-INTEGER
-	:	'integer';
-	
-BOOLEAN
-	: 'boolean';
-
-PROCEDURE
-	:	'procedure';
-
-RETURN
-	:	 'return';
-
-COMMA 
-	: ','; 
+COMMA :
+	 ','; 
    
- SEMICOLON
-	:	';';
+SEMICOLON:
+	';';
 
-COLON
-	: ':';
+COLON:
+	 ':';
    	
-LPAREN
-	: '(';
+LPAREN:
+	 '(';
 	
-RPAREN
-	: ')';
+RPAREN:
+	 ')';
 	
-PLUS
-	: '+';
+PLUS:
+	 '+';
 	
-MINUS
-	:	'-';	
+MINUS:
+	'-';	
 	
-MULTIPLY
-	:	'*';
+MULTIPLY:
+	'*';
 
-DIVIDE
-	:	'/';
+DIVIDE:
+	'/';
 
-LSQUAREBRACKET
-	:	'[';
+LSQBRACKET:
+	'[';
 	
-RSQUAREBRACKET
-	: ']';
+RSQBRACKET:
+	 ']';
 	
-ASSIGN
-	:	':=';
+ASSIGN:
+	':=';
 
-COMPARISON
-	: '=';
+COMPARISON:
+	 '=';
 
-NOTEQUALS
-	: '<>';
+NOTEQUALS:
+	 '<>';
 	
-LESSTHAN
-	: '<';
+LESSTHAN:
+	 '<';
 	
-LESSTHANEQUAL
-	: '<=';
+LESSTHANEQUAL:
+	 '<=';
 	
-GREATERTHAN
-	: '>';				
+GREATERTHAN:
+	 '>';				
 
-GREATERTHANEQUAL
-	: '>=';
-	
+GREATERTHANEQUAL:
+	 '>=';
