@@ -5,7 +5,7 @@ options{
 }
 
 //Keywords
-RETURN:	'return';
+RETURN:	'return' SEMICOLON;
 BEGIN: 'begin';
 END: 'end';
 CONST: 'const';
