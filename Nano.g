@@ -27,7 +27,6 @@ NOT: 'not';
 
 //Tokens
 ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
-
 COMMENT: '//' ~('\n'|'\r')* '\r'? '\n' {$channel=HIDDEN;}
 	|    '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;};
   
@@ -58,7 +57,7 @@ GREATERTHANEQUAL:  '>=';
 prog:	stat+;
 
 stat:  
-	(const_decl)*  (var_decl)*   (proc_decl)* BEGIN statement (statement)* END SEMICOLON;
+	(const_decl)*  (var_decl)*   (proc_decl)* (COMMENT)* BEGIN statement (statement)* END SEMICOLON;
 	
 statement:
 	block | print | read | asgn | cond /*| for*/ | call| RETURN;
@@ -70,7 +69,7 @@ const_decl:
 
 var_decl:
 	 VAR ID (COMMA ID)* COLON scalar_type SEMICOLON
-	|  VAR ID LSQBRACKET INT_CONST RSQBRACKET  ( COMMA ID LSQBRACKET INT_CONST RSQBRACKET )* COLON scalar_type ;
+	|  VAR ID LSQBRACKET INT_CONST RSQBRACKET  ( COMMA ID LSQBRACKET INT_CONST RSQBRACKET )* COLON scalar_type SEMICOLON ;
 
 proc_decl:
 	 PROCEDURE ID LPAREN (formal (SEMICOLON formal)?)* RPAREN SEMICOLON block;
@@ -97,7 +96,7 @@ asgn:
 	ID ASSIGN expr | ID  LSQBRACKET expr RSQBRACKET ASSIGN expr SEMICOLON;
 
 cond:
-	IF LPAREN expr RPAREN THEN statement LSQBRACKET ELSE statement RSQBRACKET; 	
+	IF expr THEN statement LSQBRACKET ELSE statement RSQBRACKET; 	
 
 //for:
 	//'for' ID ASSIGN expr 'to' expr 'do' statement; 	
