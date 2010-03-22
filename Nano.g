@@ -76,7 +76,7 @@ proc_decl:
 	 PROCEDURE ID LPAREN (formal (SEMICOLON formal)?)* RPAREN SEMICOLON block;
 	 
 formal:
-	ID ( COMMA ID )* | scalar_type;
+	ID ( COMMA ID )* COLON scalar_type;
 	
 scalar_type:
 	INTEGER | BOOLEAN;
