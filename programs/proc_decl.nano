@@ -1,0 +1,6 @@
+begin
+  procedure foo ();
+    begin
+  end;
+  return;
+end;

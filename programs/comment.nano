@@ -1,0 +1,5 @@
+begin
+  //Single line comment
+  /*Multi line comment*/
+  return;
+end;
