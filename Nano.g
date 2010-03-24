@@ -60,7 +60,7 @@ stat:
 	(const_decl)*  (var_decl)*   (proc_decl)* (COMMENT)* BEGIN statement (statement)* END SEMICOLON;
 	
 statement:
-	block | print | read | asgn | cond /*| for*/ | call| RETURN;
+	block | print | read | asgn | cond | forloop | call| RETURN;
 
 //Declarations
 
@@ -98,8 +98,8 @@ asgn:
 cond:
 	IF expr THEN statement LSQBRACKET ELSE statement RSQBRACKET; 	
 
-//for:
-	//'for' ID ASSIGN expr 'to' expr 'do' statement; 	
+forloop:
+	'for' ID ASSIGN expr 'to' expr 'do' statement; 	
 
 call:
 	CALL ID LPAREN (expr (COMMA expr)*)? RPAREN SEMICOLON;
