@@ -24,6 +24,9 @@ CALL: 'call';
 AND: 'and';
 OR: 'or';
 NOT: 'not';
+FOR: 'for';
+TO: 'to';
+DO: 'do';
 
 //Tokens
 ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
@@ -99,7 +102,7 @@ cond:
 	IF expr THEN statement LSQBRACKET ELSE statement RSQBRACKET; 	
 
 forloop:
-	'for' ID ASSIGN expr 'to' expr 'do' statement; 	
+	FOR ID ASSIGN expr TO expr DO statement; 	
 
 call:
 	CALL ID LPAREN (expr (COMMA expr)*)? RPAREN SEMICOLON;
