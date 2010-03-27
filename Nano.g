@@ -96,7 +96,7 @@ asgn:
 	ID ASSIGN expr SEMICOLON | ID  LSQBRACKET expr RSQBRACKET ASSIGN expr SEMICOLON;
 
 cond:
-	IF expr THEN statement LSQBRACKET ELSE statement RSQBRACKET; 	
+	IF expr THEN statement (LSQBRACKET ELSE statement RSQBRACKET)*;
 
 forloop:
 	'for' ID ASSIGN expr 'to' expr 'do' statement; 	
