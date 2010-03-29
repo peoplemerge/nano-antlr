@@ -1,0 +1,12 @@
+procedure letterGrade(score: integer);
+  if(score >= 90) then    	
+    print("A");
+  if(score >= 80) then    	
+    print("B");
+  if(score >= 70) then    	
+    print("C");
+  if(score >= 60) then    	
+    print("D");
+  if(score <= 59) then    	
+    print("F");
+end;
