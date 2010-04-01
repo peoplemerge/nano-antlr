@@ -18,7 +18,7 @@
 	<dependency>
 		<groupId>org.antlr</groupId>
 		<artifactId>antlr</artifactId>
-		<version>3.1.3</version>
+		<version>3.1</version>
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
@@ -42,77 +42,11 @@
                 <goals>
                     <goal>antlr</goal>
                 </goals>
-                <conversionTimeout>10000</conversionTimeout>
-                <debug>false</debug>
-                <dfa>false</dfa>
-                <nfa>false</nfa>
-                <excludes><exclude/></excludes>
-                <includes><include/></includes>
-                <libDirectory>src/main/antlr3/imports</libDirectory>
-                <messageFormat>antlr</messageFormat>
-                <outputDirectory>target/generated-sources/antlr3</outputDirectory>
-                <printGrammar>false</printGrammar>
-                <profile>false</profile>
-                <report>false</report>
-                <sourceDirectory>src/main/antlr3</sourceDirectory>
-                <trace>false</trace>
-                <verbose>true</verbose>
             </configuration>
         </execution>
     </executions>
 
 </plugin>
-		<plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>exec-maven-plugin</artifactId>
-			<version>1.1</version>
-			<executions>
-				<execution>
-					<id>gunit-one</id>
-					<phase>generate-test-sources</phase>
-					<goals>
-						<goal>exec</goal>
-					</goals>
-					<configuration>
-						<classpathScope>test</classpathScope>
-						<executable>java</executable>
-						<testSourceRoot>src\test\gunit\org\antlr\gunit\test</testSourceRoot>
-						<workingDirectory>src\test\gunit\org\antlr\gunit\test</workingDirectory>
-						<arguments>
-							<argument>-classpath</argument>
-							<!-- automatically creates the classpath using all project dependencies,
-							 also adding the project build directory -->
-							<classpath/>
-							<argument>org.antlr.gunit.Interp</argument>
-							<argument>-o</argument>
-							<argument>Test.gunit</argument>
-						</arguments>
-					</configuration>
-				</execution>
-				<execution>
-					<id>gunit-two</id>
-					<phase>generate-test-sources</phase>
-					<goals>
-						<goal>exec</goal>
-					</goals>
-					<configuration>
-						<classpathScope>test</classpathScope>
-						<executable>java</executable>
-						<testSourceRoot>src\test\gunit\org\antlr\gunit\test</testSourceRoot>
-						<workingDirectory>src\test\gunit\org\antlr\gunit\test</workingDirectory>
-						<arguments>
-							<argument>-classpath</argument>
-							<!-- automatically creates the classpath using all project dependencies,
-							 also adding the project build directory -->
-							<classpath/>
-							<argument>org.antlr.gunit.Interp</argument>
-							<argument>-o</argument>
-							<argument>Test2.gunit</argument>
-						</arguments>
-					</configuration>
-				</execution>
-			</executions>
-		</plugin>
 	</plugins>
 </build>
 <repositories>
