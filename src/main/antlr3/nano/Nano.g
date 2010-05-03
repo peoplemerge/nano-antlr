@@ -1,10 +1,22 @@
 grammar Nano;
 
 options{
-	 backtrack=true;
+	language = Java;
+	backtrack = true;
+}
+
+@header{
+	package nano;
+	import nano.evaluators.*;
+}
+
+@lexer::header{
+	package nano;
+	import nano.evaluators.*;
 }
 
 //Keywords
+
 RETURN:	'return' SEMICOLON;
 BEGIN: 'begin';
 END: 'end';
@@ -57,6 +69,8 @@ LESSTHANEQUAL: '<=';
 GREATERTHAN: '>';				
 GREATERTHANEQUAL:  '>=';
 
+/*
+
 prog:	stat+ {System.out.println("Reduced by rule prog");};
 
 stat:  
@@ -107,21 +121,68 @@ forloop:
 call:
 	CALL ID LPAREN (expr (COMMA expr)*)? RPAREN SEMICOLON {System.out.println("Reduced by rule call");};
 
-expr:
-	(term) (PLUS term | MINUS term | OR term)* {System.out.println("Reduced by rule expr");};
+*/
 
-term:
-	(factor) (MULTIPLY factor | DIVIDE factor | AND factor)* {System.out.println("Reduced by rule term");};
+prog returns [String result]:	
+	expr {$result = "we got: " + $expr.e.evaluate();}
+	;
+expr returns [IEvaluator e]:
+	(op1=term {$e=$op1.e;}) 
+	(
+	PLUS op2=term {$e = new PlusEvaluator($e, $op2.e);}
+	| MINUS op2=term {$e = new MinusEvaluator($e, $op2.e);}
+	| OR op2=term {$e = new OrEvaluator($e, $op2.e);}
+	)* {System.out.println("Reduced by rule expr");}
+	;
 
-factor:
-	MINUS prim | NOT prim | prim {System.out.println("Reduced by rule factor");};
+term returns [IEvaluator e]:
+	(op1=factor {$e=$op1.e;})
+	(
+		MULTIPLY op2=factor {$e = new MultiplyEvaluator($e, $op2.e);}
+		| DIVIDE op2=factor {$e = new DivideEvaluator($e, $op2.e);}
+		| AND op2=factor {$e = new AndEvaluator($e, $op2.e);} 
+	)*
+	;
 
-prim:
-	INT_CONST | (TRUE | FALSE) | value  | LPAREN expr RPAREN | LPAREN expr relop expr RPAREN {System.out.println("Reduced by rule prim");}; 
 
-value:
-	ID | ID LSQBRACKET expr RSQBRACKET {System.out.println("Reduced by rule value");};
+factor returns [IEvaluator e]:
+	MINUS op1=prim {$e = new NegationEvaluator($prim.e);}
+	| NOT op1=prim {$e = new NotEvaluator($prim.e);}
+	| op1=prim {$e=$prim.e;}
+	;
+
+prim returns [IEvaluator e]:
+	INT_CONST {$e = new IntEvaluator(Integer.parseInt($INT_CONST.text));}
+	| 	TRUE {$e = new BooleanEvaluator(true);}
+	| FALSE {$e = new BooleanEvaluator(false);}
+	| value  {$e=$value.e;}
+	| LPAREN expr RPAREN {$e=$expr.e;}
+	/*
+	| LPAREN expr relop expr RPAREN {
+		//todo
+		$e = new BooleanEvaluator(false);	
+	}
+	*/
+	; 
+
+
+value returns [IEvaluator e]:
+	ID {
+	//todo
+	$e = new BooleanEvaluator(false);
+	}
+	/*
+	| ID LSQBRACKET expr RSQBRACKET {
+	//todo
+	$e = new BooleanEvaluator(false);
+	}
+	*/
+	;
  
-relop:
-	EQUALS | LESSTHAN | GREATERTHAN | LESSTHANEQUAL | GREATERTHANEQUAL | NOTEQUALS {System.out.println("Reduced by rule relop");};
+relop returns [IEvaluator e]:
+	(EQUALS | LESSTHAN | GREATERTHAN | LESSTHANEQUAL | GREATERTHANEQUAL | NOTEQUALS){
+	//todo
+	$e = new BooleanEvaluator(false);
+	}
+	;
 	

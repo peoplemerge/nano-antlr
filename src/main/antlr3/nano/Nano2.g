@@ -2,9 +2,12 @@ grammar Nano2;
 
 options{
 	language = Java;
-	backtrack = true;
 	output = AST;
 	ASTLabelType = CommonTree;
+}
+
+tokens {
+	NEGATION;
 }
 
 @header{
@@ -17,8 +20,11 @@ options{
 	import nano.evaluators.*;
 }
 
-//Keywords
 
+prog
+	:		var_decl* asgn* expr EOF!
+	;
+	
 RETURN:	'return' SEMICOLON;
 BEGIN: 'begin';
 END: 'end';
@@ -42,14 +48,13 @@ FOR: 'for';
 TO: 'to';
 DO: 'do';
 
-//Tokens
-ID: ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;
+fragment LETTER : ('a'..'z' | 'A'..'Z') ;
+fragment DIGIT : '0'..'9';
+INT_CONST : DIGIT+ ;
+ID : LETTER (LETTER | DIGIT)*;
+WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT: '//' ~('\n'|'\r')* '\r'? '\n' {$channel=HIDDEN;}
 	|    '/*' ( options {greedy=false;} : . )* '*/' {$channel=HIDDEN;};
-  
-WS: ( ' '| '\t' | '\r' | '\n' ) {$channel=HIDDEN;};
-NEWLINE: '\r'? '\n';
-INT_CONST: '0'..'9'+;
 STRING: '"' (~('\\'|'"') )* '"';
 
 COMMA : ','; 
@@ -115,47 +120,40 @@ call:
 
 */
 
-prog :	
-	(var_decl)*
-	expr 
-;
-
 var_decl:
-	 VAR ID (COMMA ID)* COLON scalar_type SEMICOLON 
+	 VAR! ID (COMMA ID)* COLON! scalar_type^ SEMICOLON! 
 //	|  VAR ID LSQBRACKET INT_CONST RSQBRACKET  ( COMMA ID LSQBRACKET INT_CONST RSQBRACKET )* COLON scalar_type SEMICOLON 
 ;
 
 scalar_type:
 	INTEGER | BOOLEAN 
-;
+;	
+asgn
+	:	ID ASSIGN^ expr SEMICOLON!
+//    | ID  LSQBRACKET expr RSQBRACKET ASSIGN expr SEMICOLON
+
+	;
 	
+// exprs -- fun time!
 
-asgn:
-	ID ASSIGN expr SEMICOLON 
-	| ID  LSQBRACKET expr RSQBRACKET ASSIGN expr SEMICOLON
-;
-
-expr:
-	(term) (PLUS^ term | MINUS^ term | OR^ term)* 
-;
-
-term:
-	(factor) (MULTIPLY^ factor | DIVIDE^ factor | AND^ factor)* 
-;
+term
+	:	ID
+	|	'('! expr ')'!
+	|	INT_CONST
+	;
 	
-factor:
-	MINUS^ prim | NOT^ prim | prim 
-;
+unary
+	:	(PLUS! | negation^)* term
+	;
 
-prim:
-	INT_CONST | (TRUE | FALSE) | value  | LPAREN expr RPAREN | LPAREN expr relop^ expr RPAREN 
-; 
+negation
+	:	'-' -> NEGATION
+	;
 
-value:
-	ID | ID LSQBRACKET expr RSQBRACKET 
-;
- 
-relop:
-	EQUALS | LESSTHAN | GREATERTHAN | LESSTHANEQUAL | GREATERTHANEQUAL | NOTEQUALS 
-;
+mult
+	:	unary ((MULTIPLY^ | DIVIDE^ | OR^) unary)*
+	;
 	
+expr
+	:	mult ((PLUS^ | MINUS^) mult)*
+	;

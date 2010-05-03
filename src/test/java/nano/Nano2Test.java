@@ -1,10 +1,13 @@
 package nano;
-import nano.Nano2Lexer;
-import nano.Nano2Parser;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import nano.Nano2Parser.prog_return;
 
+import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.junit.Test;
 
@@ -39,26 +42,46 @@ public class Nano2Test {
 	public void testvar_decl() throws Exception {
 		parse("src/test/programs/var_decl.nano");
 	}
-	*/
     @Test
     public void testSimple() throws Exception {
             parse("src/test/programs/simple.nano");
     }
+	*/
+    
+    @Test
+    public void testExpression()throws Exception {
+            parse(
+            		"x := 4; " +
+    				"y := 2 + 3; " +
+    				"3  * (-x + y) * 3");
+    }
 
-	public void parse(String fileName) throws Exception {
+    @Test
+    public void testDefExpression()throws Exception {
+            parse(
+            		"var x : integer; var y: integer; " +
+            		"x := 4; " +
+    				"y := 2 + 3; " +
+    				"3  * (-x + y) * 3");
+    }
+
+	public void parse(InputStream inputStream) throws Exception {
 		// Create an input character stream from standard in
-		/*
-		ANTLRInputStream input = new ANTLRInputStream(new FileInputStream(
-				fileName));*/
-		ANTLRStringStream input = new ANTLRStringStream("var x,y : integer; " +
-				"x := 4; " +
-				"y := 2 + 3; " +
-				"3  * (-x + y) * 3");
+		ANTLRInputStream input = new ANTLRInputStream(inputStream);
 		// Create an ExprLexer that feeds from that stream
+		process(input);
+	}
+	public void parse(String inputStr) throws Exception {
+		// Create an input character stream from standard in
+		ANTLRStringStream input = new ANTLRStringStream(inputStr);
+		// Create an ExprLexer that feeds from that stream
+		process(input);
+	}
+
+	private void process(ANTLRStringStream input) throws RecognitionException {
 		Nano2Lexer lexer = new Nano2Lexer(input);
 		// Create a stream of tokens fed by the lexer
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		
 		
 		// Create a parser that feeds off the token stream
 		Nano2Parser parser = new Nano2Parser(tokens);
@@ -67,6 +90,7 @@ public class Nano2Test {
 		System.out.println(prog.tree.toStringTree());
 		CommonTreeNodeStream stream = new CommonTreeNodeStream(prog.tree);
 		ProgWalker walker = new ProgWalker(stream);
-		walker.evaluator();
+		int result = walker.evaluator();
+		System.out.println("result: " + result);
 	}
 }
