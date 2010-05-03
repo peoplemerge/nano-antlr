@@ -21,12 +21,18 @@ evaluator returns [int result]
 	;
 	
 declaration
-	:	^(INTEGER ID )
-			{ variables.put($ID.text, 0); }
+	:	^(INTEGER (ID { variables.put($ID.text, 0); })* )
+			
 	;
 assignment
 	:	^(ASSIGN ID e=expr)
-			{ variables.put($ID.text, e); }
+			{ 
+				if(variables.containsKey($ID.text)){
+					variables.put($ID.text, e);
+				} else {
+					System.err.println("Cannot assign undefined variable: " + $ID.text);
+				} 
+			}
 	;
 	
 expr returns [int result]
@@ -35,7 +41,14 @@ expr returns [int result]
 	|	^(MULTIPLY op1=expr op2=expr) { result = op1 * op2; }
 	|	^(DIVIDE op1=expr op2=expr) { result = op1 / op2; }
 	|	^(NEGATION e=expr)  { result = -e; }
-	|	ID { result = variables.get($ID.text); }
+	|	ID {
+			if (variables.containsKey($ID.text)){ 
+				result = variables.get($ID.text);
+			} else {
+				System.err.println("Cannot return undefined variable: \"" + $ID.text + "\" so returning 0");
+				result = 0;
+			} 
+		}
 	|	INT_CONST { result = Integer.parseInt($INT_CONST.text); }
 	;
 

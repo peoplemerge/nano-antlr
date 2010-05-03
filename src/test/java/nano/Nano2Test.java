@@ -65,6 +65,15 @@ public class Nano2Test {
     				"3  * (-x + y) * 3");
     }
 
+    @Test
+    public void testMultiDefExpression()throws Exception {
+            parse(
+            		"var x, y : integer; " +
+            		"x := 4; " +
+    				"y := 2 + 3; " +
+    				"3  * (-x + y) * 3");
+    }
+
 	public void parse(InputStream inputStream) throws Exception {
 		// Create an input character stream from standard in
 		ANTLRInputStream input = new ANTLRInputStream(inputStream);
